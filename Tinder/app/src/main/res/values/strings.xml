@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Tinder</string>
+    <string name="map_key" translatable="false">AIzaSyDF579ubWkXZOTRkI40_aOtWNOLde3kxbg</string>
 </resources>

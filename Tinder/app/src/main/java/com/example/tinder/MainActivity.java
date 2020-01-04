@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.tinder.models.UserLocation;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -18,6 +19,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
 import com.lorentzos.flingswipe.SwipeFlingAdapterView;
 
 import java.util.ArrayList;
@@ -113,6 +116,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void isConnectionMatch(String userId) {
+        DatabaseReference currentUserConnectionsDb = usersDb.child(userSex).child(currentUid).child("connections").child("yep").child(userId);
+        currentUserConnectionsDb.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                //test if snapshot exists
+                if (dataSnapshot.exists()){
+                    //connection found notfication
+                    Toast.makeText(MainActivity.this, "new Connection", Toast.LENGTH_LONG).show();
+                    usersDb.child(oppositeUserSex).child(dataSnapshot.getKey()).child("connections").child("matches").child(currentUid).setValue(true);
+                    usersDb.child(userSex).child(currentUid).child("connections").child("matches").child(dataSnapshot.getKey()).setValue(true);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     public void checkUserGender(){
@@ -204,8 +225,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 if (dataSnapshot.exists() && !dataSnapshot.child("connections").child("nope").hasChild(currentUid) && !dataSnapshot.child("connections").child("yep").hasChild(currentUid)){
-
-                    Cards item = new Cards(dataSnapshot.getKey(),dataSnapshot.child("name").getValue().toString());
+                    Cards item = null;
+                    //if user has a profile picture
+                    if (dataSnapshot.child("profileImageUrl").getValue()!=null){
+                        item = new Cards(dataSnapshot.getKey(),dataSnapshot.child("name").getValue().toString(),dataSnapshot.child("profileImageUrl").getValue().toString());
+                    }else if (dataSnapshot.child("profileImageUrl").getValue()==null){
+                        item = new Cards(dataSnapshot.getKey(),dataSnapshot.child("name").getValue().toString(),null);
+                    }
 
                     rowItems.add(item);
                     arrayAdapter.notifyDataSetChanged();
@@ -232,5 +258,18 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    public void goToSettings(View view) {
+        Intent intent = new Intent(MainActivity.this,SettingsActivity.class);
+        intent.putExtra("userSex",userSex);
+        startActivity(intent);
+        return;
+    }
+
+    public void openLocationActivity(View view) {
+        Intent intent = new Intent(MainActivity.this, CurrentLocationActivity.class);
+        startActivity(intent);
+        return;
     }
 }
