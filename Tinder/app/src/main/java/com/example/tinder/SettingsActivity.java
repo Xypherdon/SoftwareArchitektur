@@ -3,10 +3,14 @@ package com.example.tinder;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.location.Location;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,8 +19,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -35,33 +44,45 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+
 public class SettingsActivity extends AppCompatActivity {
 
     private EditText mNameField, mPhoneField;
 
-    private Button mBack, mConfirm;
+    private TextView mCoordinates;
+
+    private Button mBack, mConfirm, mLocation;
 
     private ImageView mProfileImage;
 
     private FirebaseAuth mAuth;
     private DatabaseReference mCustomerDatabase;
 
-    private String userId, name, phone, profileImageURL;
+    private String userId, name, phone, profileImageURL, location;
 
     private String userSex;
 
     private Uri resultUri;
+
+    Location currentLocation;
+    FusedLocationProviderClient fusedLocationProviderClient;
+    private static final int REQUEST_CODE = 101;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
+        //request location permission
+        requestLocationPermission();
+
         userSex = getIntent().getExtras().getString("userSex");
 
         //user fields
         mNameField = (EditText) findViewById(R.id.name);
         mPhoneField = (EditText) findViewById(R.id.phone);
+        mCoordinates = (TextView) findViewById(R.id.coords);
 
         //profile image
         mProfileImage = (ImageView) findViewById(R.id.profileImage);
@@ -69,6 +90,7 @@ public class SettingsActivity extends AppCompatActivity {
         //Buttons
         mBack = (Button) findViewById(R.id.back);
         mConfirm = (Button) findViewById(R.id.confirmSettings);
+        mLocation = (Button) findViewById(R.id.getCurrentLocation);
 
         //get current user Id
         mAuth = FirebaseAuth.getInstance();
@@ -77,6 +99,10 @@ public class SettingsActivity extends AppCompatActivity {
 
         getUserInfo();
 
+        //location
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
+        //on click listeners
         mProfileImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -101,8 +127,37 @@ public class SettingsActivity extends AppCompatActivity {
                 return;
             }
         });
+
+        mLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getCurrentLocation();
+            }
+        });
     }
 
+    private void getCurrentLocation() {
+
+        if(ActivityCompat.checkSelfPermission(SettingsActivity.this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            return;
+        }
+
+        Task<Location> task = fusedLocationProviderClient.getLastLocation();
+
+        task.addOnSuccessListener(new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                if (location!=null){
+                    currentLocation = location;
+                    Toast.makeText(getApplicationContext(), currentLocation.getLatitude()+" "+currentLocation.getLongitude(),Toast.LENGTH_LONG).show();
+
+                    String text = currentLocation.getLatitude() + " " +currentLocation.getLongitude();
+
+                    mCoordinates.setText(text);
+                }
+            }
+        });
+    }
 
     private void getUserInfo(){
         mCustomerDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -141,10 +196,12 @@ public class SettingsActivity extends AppCompatActivity {
     private void saveUserInformation() {
         name = mNameField.getText().toString();
         phone = mPhoneField.getText().toString();
+        location = mCoordinates.getText().toString();
 
         final Map userInfo = new HashMap();
         userInfo.put("name", name);
         userInfo.put("phone", phone);
+        userInfo.put("location", location);
 
         //Update database
         mCustomerDatabase.updateChildren(userInfo);
@@ -202,6 +259,10 @@ public class SettingsActivity extends AppCompatActivity {
 
     }
 
+    private void requestLocationPermission(){
+        ActivityCompat.requestPermissions(this, new String[]{ACCESS_FINE_LOCATION}, 1);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -211,6 +272,18 @@ public class SettingsActivity extends AppCompatActivity {
             //image location on the phone
             resultUri = imageUri;
             mProfileImage.setImageURI(resultUri);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode){
+            case REQUEST_CODE:
+                if (grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    getCurrentLocation();
+                }
+                break;
         }
     }
 }

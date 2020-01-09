@@ -31,18 +31,31 @@
         android:background="@null"
         android:hint="Phone"
         android:layout_marginBottom="20sp"
-        android:inputType="phone"/>
+        android:inputType="phone" />
 
-    <Button
+    <TextView
+        android:id="@+id/coords"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="20sp"
+        android:hint="Coords"/>
+
+    <Button
+        android:id="@+id/getCurrentLocation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Location" />
+
+    <Button
         android:id="@+id/confirmSettings"
-        android:text="Confirm"/>
-
-    <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="Confirm" />
+
+    <Button
         android:id="@+id/back"
-        android:text="Back"/>
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Back" />
 
 </LinearLayout>
