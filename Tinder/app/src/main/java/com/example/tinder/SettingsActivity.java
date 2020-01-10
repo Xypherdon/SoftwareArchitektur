@@ -36,6 +36,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
@@ -43,6 +44,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import io.grpc.Context;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
@@ -57,6 +60,9 @@ public class SettingsActivity extends AppCompatActivity {
     private ImageView mProfileImage;
 
     private FirebaseAuth mAuth;
+
+    private FirebaseStorage storage = FirebaseStorage.getInstance();
+
     private DatabaseReference mCustomerDatabase;
 
     private String userId, name, phone, profileImageURL, location;
@@ -107,8 +113,7 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //allow user to pick from the phone
-                Intent intent = new Intent(Intent.ACTION_PICK);
-                intent.setType("image/*");
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(intent, 1);
             }
         });
@@ -138,7 +143,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void getCurrentLocation() {
 
-        if(ActivityCompat.checkSelfPermission(SettingsActivity.this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+        if (ActivityCompat.checkSelfPermission(SettingsActivity.this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
 
@@ -147,11 +152,11 @@ public class SettingsActivity extends AppCompatActivity {
         task.addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
             public void onSuccess(Location location) {
-                if (location!=null){
+                if (location != null) {
                     currentLocation = location;
-                    Toast.makeText(getApplicationContext(), currentLocation.getLatitude()+" "+currentLocation.getLongitude(),Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), currentLocation.getLatitude() + " " + currentLocation.getLongitude(), Toast.LENGTH_LONG).show();
 
-                    String text = currentLocation.getLatitude() + " " +currentLocation.getLongitude();
+                    String text = currentLocation.getLatitude() + " " + currentLocation.getLongitude();
 
                     mCoordinates.setText(text);
                 }
@@ -159,27 +164,27 @@ public class SettingsActivity extends AppCompatActivity {
         });
     }
 
-    private void getUserInfo(){
+    private void getUserInfo() {
         mCustomerDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists() && dataSnapshot.getChildrenCount()>0){
+                if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
                     Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
 
                     //set name
-                    if (map.get("name")!=null){
+                    if (map.get("name") != null) {
                         name = map.get("name").toString();
                         mNameField.setText(name);
                     }
 
                     //set phone
-                    if (map.get("phone")!=null){
+                    if (map.get("phone") != null) {
                         phone = map.get("phone").toString();
                         mPhoneField.setText(phone);
                     }
 
                     //set Image
-                    if (map.get("profileImageUrl")!=null){
+                    if (map.get("profileImageUrl") != null) {
                         profileImageURL = map.get("profileImageUrl").toString();
                         Glide.with(getApplication()).load(profileImageURL).into(mProfileImage);
                     }
@@ -206,7 +211,7 @@ public class SettingsActivity extends AppCompatActivity {
         //Update database
         mCustomerDatabase.updateChildren(userInfo);
 
-        if (resultUri!=null){
+        if (resultUri != null) {
             final StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("profileImages").child(userId);
 
             Bitmap bitmap = null;
@@ -244,7 +249,7 @@ public class SettingsActivity extends AppCompatActivity {
                                     String imageUrl = uri.toString();
 
                                     Map userInfo = new HashMap();
-                                    userInfo.put("profileImageUrl",imageUrl);
+                                    userInfo.put("profileImageUrl", imageUrl);
                                     mCustomerDatabase.updateChildren(userInfo);
                                 }
                             });
@@ -252,14 +257,14 @@ public class SettingsActivity extends AppCompatActivity {
                     }
                 }
             });
-        }else {
+        } else {
             finish();
         }
 
 
     }
 
-    private void requestLocationPermission(){
+    private void requestLocationPermission() {
         ActivityCompat.requestPermissions(this, new String[]{ACCESS_FINE_LOCATION}, 1);
     }
 
@@ -267,20 +272,59 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 1 && resultCode == Activity.RESULT_OK){
-            final Uri imageUri = data.getData();
+        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
+            assert data != null;
             //image location on the phone
-            resultUri = imageUri;
-            mProfileImage.setImageURI(resultUri);
+            Bundle bundle = data.getExtras();
+            assert bundle != null;
+            Bitmap bitmap = (Bitmap) bundle.get("data");
+            assert bitmap != null;
+            mProfileImage.setImageBitmap(bitmap);
+
+            StorageReference storageRef = storage.getReference();
+            StorageReference profilePicsRef = storageRef.child("profileImages/" + userId);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] byteData = baos.toByteArray();
+            UploadTask uploadTask = profilePicsRef.putBytes(byteData);
+            uploadTask.addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    System.out.println("A dat handicapatu ala cu viteza (eroare upload)");
+                }
+            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    if (taskSnapshot.getMetadata() != null) {
+                        if (taskSnapshot.getMetadata().getReference() != null) {
+                            final Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
+                            result.addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    String imageUrl = uri.toString();
+
+                                    Map userInfo = new HashMap();
+                                    userInfo.put("profileImageUrl", imageUrl);
+                                    mCustomerDatabase.updateChildren(userInfo);
+                                }
+                            });
+                        }
+                    }
+                }
+            });
+
+
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode){
+        switch (requestCode) {
             case REQUEST_CODE:
-                if (grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     getCurrentLocation();
                 }
                 break;

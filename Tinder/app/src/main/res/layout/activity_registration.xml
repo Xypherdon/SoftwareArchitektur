@@ -29,6 +29,14 @@
             android:layout_height="wrap_content"
             android:text="Female"
             />
+
+        <RadioButton
+            android:id="@+id/otherSexRadioButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:clickable="false"
+            android:text="Other" />
     </RadioGroup>
 
     <EditText
@@ -44,9 +52,38 @@
         android:id="@+id/password"
         />
 
-    <Button
+    <TextView
+        android:id="@+id/religionTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="register"
-        android:id="@+id/register"/>
+        android:text="Choose your religion:" />
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="111dp">
+
+        <RadioButton
+            android:id="@+id/pokaitRadioButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Christian" />
+
+        <RadioButton
+            android:id="@+id/bombardierRadioButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Muslim" />
+
+        <RadioButton
+            android:id="@+id/dalaiRadioButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Hindu" />
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/register"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="register" />
 </LinearLayout>
