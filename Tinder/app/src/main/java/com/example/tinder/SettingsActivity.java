@@ -19,6 +19,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,16 +51,18 @@ public class SettingsActivity extends AppCompatActivity {
 
     private EditText mNameField, mPhoneField;
 
-    private TextView mCoordinates;
+    private TextView mCoordinates, mProgressBar;
 
     private Button mBack, mConfirm, mLocation;
+
+    private SeekBar seekBarRange;
 
     private ImageView mProfileImage;
 
     private FirebaseAuth mAuth;
     private DatabaseReference mCustomerDatabase;
 
-    private String userId, name, phone, profileImageURL, location;
+    private String userId, name, phone, profileImageURL, location, range;
 
     private String userSex;
 
@@ -83,6 +86,7 @@ public class SettingsActivity extends AppCompatActivity {
         mNameField = (EditText) findViewById(R.id.name);
         mPhoneField = (EditText) findViewById(R.id.phone);
         mCoordinates = (TextView) findViewById(R.id.coords);
+        mProgressBar = (TextView) findViewById(R.id.progressBar);
 
         //profile image
         mProfileImage = (ImageView) findViewById(R.id.profileImage);
@@ -91,6 +95,9 @@ public class SettingsActivity extends AppCompatActivity {
         mBack = (Button) findViewById(R.id.back);
         mConfirm = (Button) findViewById(R.id.confirmSettings);
         mLocation = (Button) findViewById(R.id.getCurrentLocation);
+
+        //seekbar
+        seekBarRange = (SeekBar) findViewById(R.id.seekBarRange);
 
         //get current user Id
         mAuth = FirebaseAuth.getInstance();
@@ -101,6 +108,25 @@ public class SettingsActivity extends AppCompatActivity {
 
         //location
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
+        //on change listeners
+        seekBarRange.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                // updated continuously as the user slides the thumb
+                mProgressBar.setText("Range: " + progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // called when the user first touches the SeekBar
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // called after the user finishes moving the SeekBar
+            }
+        });
 
         //on click listeners
         mProfileImage.setOnClickListener(new View.OnClickListener() {
@@ -183,6 +209,21 @@ public class SettingsActivity extends AppCompatActivity {
                         profileImageURL = map.get("profileImageUrl").toString();
                         Glide.with(getApplication()).load(profileImageURL).into(mProfileImage);
                     }
+
+                    //set location
+                    if (map.get("location")!=null){
+                        location = map.get("location").toString();
+                        mCoordinates.setText(location);
+                    }
+
+                    //set progress bar
+                    if (map.get("range")!=null){
+                        range = map.get("range").toString();
+                        mProgressBar.setText("Range: " + range);
+                    }else {
+                        //set progress bar default
+                        mProgressBar.setText("Range: " + seekBarRange.getProgress());
+                    }
                 }
             }
 
@@ -197,11 +238,13 @@ public class SettingsActivity extends AppCompatActivity {
         name = mNameField.getText().toString();
         phone = mPhoneField.getText().toString();
         location = mCoordinates.getText().toString();
+        range = mProgressBar.getText().toString();
 
         final Map userInfo = new HashMap();
         userInfo.put("name", name);
         userInfo.put("phone", phone);
         userInfo.put("location", location);
+        userInfo.put("range", range);
 
         //Update database
         mCustomerDatabase.updateChildren(userInfo);
