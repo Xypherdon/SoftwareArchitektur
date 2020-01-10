@@ -16,7 +16,7 @@
     <RadioGroup
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/radioGroup">
+        android:id="@+id/genderRadioGroup">
 
         <RadioButton
         android:layout_width="wrap_content"
@@ -59,8 +59,9 @@
         android:text="Choose your religion:" />
 
     <RadioGroup
+        android:id="@+id/religionRadioGroup"
         android:layout_width="match_parent"
-        android:layout_height="111dp">
+        android:layout_height="wrap_content">
 
         <RadioButton
             android:id="@+id/pokaitRadioButton"

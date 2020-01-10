@@ -33,6 +33,30 @@
         android:layout_marginBottom="20sp"
         android:inputType="phone" />
 
+    <RadioGroup
+        android:id="@+id/religionRadioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="113dp">
+
+        <RadioButton
+            android:id="@+id/pokaitRadioButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Christian" />
+
+        <RadioButton
+            android:id="@+id/bombardierRadioButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Muslim" />
+
+        <RadioButton
+            android:id="@+id/streetshitterRadioButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Hindu" />
+    </RadioGroup>
+
     <TextView
         android:id="@+id/coords"
         android:layout_width="match_parent"

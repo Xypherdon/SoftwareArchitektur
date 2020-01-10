@@ -28,7 +28,7 @@ public class RegistrationActivity extends AppCompatActivity {
 
     private EditText mEmail, mPassword, mName;
 
-    private RadioGroup mradioGroup;
+    private RadioGroup mGenderRadioGroup, mReligionRadioGroup;
 
     private FirebaseAuth mAuth;
 
@@ -45,8 +45,8 @@ public class RegistrationActivity extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-                if (user!=null){
-                    Intent intent = new Intent(RegistrationActivity.this,MainActivity.class);
+                if (user != null) {
+                    Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
                     startActivity(intent);
                     finish();
                     return;
@@ -63,13 +63,19 @@ public class RegistrationActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mName = (EditText) findViewById(R.id.name);
-                mradioGroup = (RadioGroup) findViewById(R.id.radioGroup);
+                mGenderRadioGroup = (RadioGroup) findViewById(R.id.genderRadioGroup);
+                mReligionRadioGroup = (RadioGroup) findViewById(R.id.religionRadioGroup);
 
-                int selectId = mradioGroup.getCheckedRadioButtonId();
+                int selectedGenderId = mGenderRadioGroup.getCheckedRadioButtonId();
+                int selectedReligionId = mReligionRadioGroup.getCheckedRadioButtonId();
 
-                final RadioButton radioButton = (RadioButton) findViewById(selectId);
+                final RadioButton genderRadioButton = (RadioButton) findViewById(selectedGenderId);
+                final RadioButton religionRadiobutton = findViewById(selectedReligionId);
 
-                if (radioButton.getText() == null){
+                if (genderRadioButton.getText() == null) {
+                    return;
+                }
+                if (religionRadiobutton.getText() == null) {
                     return;
                 }
 
@@ -77,17 +83,19 @@ public class RegistrationActivity extends AppCompatActivity {
                 final String email = mEmail.getText().toString();
                 final String passworf = mPassword.getText().toString();
                 final String name = mName.getText().toString();
+                final String religion = religionRadiobutton.getText().toString();
 
-                mAuth.createUserWithEmailAndPassword(email,passworf).addOnCompleteListener(RegistrationActivity.this, new OnCompleteListener<AuthResult>() {
+                mAuth.createUserWithEmailAndPassword(email, passworf).addOnCompleteListener(RegistrationActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (!task.isSuccessful()){
+                        if (!task.isSuccessful()) {
                             Toast.makeText(RegistrationActivity.this, "sign up error", Toast.LENGTH_SHORT).show();
-                        }else {
+                        } else {
                             String userId = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
-                            String gender = radioButton.getText().toString();
+                            String gender = genderRadioButton.getText().toString();
                             DatabaseReference currentUserDb = FirebaseDatabase.getInstance().getReference().child("users").child(gender).child(userId).child("name");
                             currentUserDb.setValue(name);
+                            currentUserDb.setValue(religion);
                         }
                     }
                 });

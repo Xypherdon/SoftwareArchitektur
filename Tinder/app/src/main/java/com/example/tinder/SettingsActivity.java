@@ -19,6 +19,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,6 +45,7 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,13 +65,15 @@ public class SettingsActivity extends AppCompatActivity {
 
     private ImageView mProfileImage;
 
+    private RadioGroup mReligionRadioGroup;
+
     private FirebaseAuth mAuth;
 
     private FirebaseStorage storage = FirebaseStorage.getInstance();
 
     private DatabaseReference mCustomerDatabase;
 
-    private String userId, name, phone, profileImageURL, location, range;
+    private String userId, name, phone, profileImageURL, location, range, religion;
 
     private String userSex;
 
@@ -94,6 +99,8 @@ public class SettingsActivity extends AppCompatActivity {
         mCoordinates = (TextView) findViewById(R.id.coords);
         mProgressBar = (TextView) findViewById(R.id.progressBar);
 
+
+
         //profile image
         mProfileImage = (ImageView) findViewById(R.id.profileImage);
 
@@ -101,6 +108,9 @@ public class SettingsActivity extends AppCompatActivity {
         mBack = (Button) findViewById(R.id.back);
         mConfirm = (Button) findViewById(R.id.confirmSettings);
         mLocation = (Button) findViewById(R.id.getCurrentLocation);
+
+        //religion
+        mReligionRadioGroup = findViewById(R.id.religionRadioGroup);
 
         //seekbar
         seekBarRange = (SeekBar) findViewById(R.id.seekBarRange);
@@ -221,6 +231,25 @@ public class SettingsActivity extends AppCompatActivity {
                         mCoordinates.setText(location);
                     }
 
+                    if (map.get("religion")!=null){
+                        religion=map.get("religion").toString();
+
+                        //in caz ca sunt si alte lucruri in radiogroup
+                        ArrayList<RadioButton> listOfRadioButtons = new ArrayList<RadioButton>();
+                        for (int i=0;i< mReligionRadioGroup.getChildCount();i++) {
+                            View o = mReligionRadioGroup.getChildAt(i);
+                            if (o instanceof RadioButton) {
+                                listOfRadioButtons.add((RadioButton)o);
+                            }
+                        }
+
+                        for (RadioButton radioButton : listOfRadioButtons){
+                            if (radioButton.getText().toString().equals(religion)){
+                                radioButton.setChecked(true);
+                            }
+                        }
+                    }
+
                     //set progress bar
                     if (map.get("range")!=null){
                         range = map.get("range").toString();
@@ -244,12 +273,15 @@ public class SettingsActivity extends AppCompatActivity {
         phone = mPhoneField.getText().toString();
         location = mCoordinates.getText().toString();
         range = mProgressBar.getText().toString();
+        RadioButton selectedReligion = findViewById(mReligionRadioGroup.getCheckedRadioButtonId());
+        religion=selectedReligion.getText().toString();
 
         final Map userInfo = new HashMap();
         userInfo.put("name", name);
         userInfo.put("phone", phone);
         userInfo.put("location", location);
         userInfo.put("range", range);
+        userInfo.put("religion",religion);
 
         //Update database
         mCustomerDatabase.updateChildren(userInfo);
