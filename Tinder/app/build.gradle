@@ -36,6 +36,9 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage:19.1.0'
     implementation 'com.google.firebase:firebase-firestore:21.3.1'
 
+    //HTTP Request tool
+    implementation 'com.android.volley:volley:1.1.1'
+
     //Google Play Services for Maps
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
 
