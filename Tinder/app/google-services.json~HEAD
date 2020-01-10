@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "388687297108",
+    "firebase_url": "https://faketinder-fe8dd.firebaseio.com",
+    "project_id": "faketinder-fe8dd",
+    "storage_bucket": "faketinder-fe8dd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:388687297108:android:b967ad08d4113fde780bc1",
+        "android_client_info": {
+          "package_name": "com.example.tinder"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "388687297108-rj874i83bn1jo9t78qu3emerfk1lag78.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tinder",
+            "certificate_hash": "158eaeb1c798c7e047237d2777fd6d5f8f4aaebe"
+          }
+        },
+        {
+          "client_id": "388687297108-jps0o70s7pd265nvfg1iqb3q1c41kq80.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAz7ZgWGDNxmGbIoz9yELq3aJWt_fugoa0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "388687297108-jps0o70s7pd265nvfg1iqb3q1c41kq80.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

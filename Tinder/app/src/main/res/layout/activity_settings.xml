@@ -40,6 +40,21 @@
         android:layout_marginBottom="20sp"
         android:hint="Coords"/>
 
+    <TextView
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20sp"
+        android:hint=""/>
+
+    <SeekBar
+        android:id="@+id/seekBarRange"
+        android:max="140"
+        android:progress="70"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20sp"/>
+
     <Button
         android:id="@+id/getCurrentLocation"
         android:layout_width="match_parent"
