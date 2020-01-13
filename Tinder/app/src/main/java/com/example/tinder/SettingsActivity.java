@@ -5,13 +5,12 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Location;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -25,10 +24,19 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HttpHeaderParser;
+import com.android.volley.toolbox.ImageRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -39,22 +47,38 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.grpc.Context;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 public class SettingsActivity extends AppCompatActivity {
 
+    private static final String POST_API_URL = "http://opeapi.ws.pho.to/addtask";
+    private static final String GET_API_URL = "http://opeapi.ws.pho.to/getresult?request_id=";
+    private static final int REQUEST_CODE = 101;
+    private static final String SECRET_API_KEY = "98a07f11ae9c88df35d31e5f5ff32f40";
+    private static final String APP_ID = "470ce24349b4ee91c4c7c97e79fca0f2";
     private EditText mNameField, mPhoneField;
 
     private TextView mCoordinates, mProgressBar;
@@ -81,7 +105,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     Location currentLocation;
     FusedLocationProviderClient fusedLocationProviderClient;
-    private static final int REQUEST_CODE = 101;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +122,6 @@ public class SettingsActivity extends AppCompatActivity {
         mPhoneField = (EditText) findViewById(R.id.phone);
         mCoordinates = (TextView) findViewById(R.id.coords);
         mProgressBar = (TextView) findViewById(R.id.progressBar);
-
 
 
         //profile image
@@ -226,35 +249,35 @@ public class SettingsActivity extends AppCompatActivity {
                     }
 
                     //set location
-                    if (map.get("location")!=null){
+                    if (map.get("location") != null) {
                         location = map.get("location").toString();
                         mCoordinates.setText(location);
                     }
 
-                    if (map.get("religion")!=null){
-                        religion=map.get("religion").toString();
+                    if (map.get("religion") != null) {
+                        religion = map.get("religion").toString();
 
                         //in caz ca sunt si alte lucruri in radiogroup
                         ArrayList<RadioButton> listOfRadioButtons = new ArrayList<RadioButton>();
-                        for (int i=0;i< mReligionRadioGroup.getChildCount();i++) {
+                        for (int i = 0; i < mReligionRadioGroup.getChildCount(); i++) {
                             View o = mReligionRadioGroup.getChildAt(i);
                             if (o instanceof RadioButton) {
-                                listOfRadioButtons.add((RadioButton)o);
+                                listOfRadioButtons.add((RadioButton) o);
                             }
                         }
 
-                        for (RadioButton radioButton : listOfRadioButtons){
-                            if (radioButton.getText().toString().equals(religion)){
+                        for (RadioButton radioButton : listOfRadioButtons) {
+                            if (radioButton.getText().toString().equals(religion)) {
                                 radioButton.setChecked(true);
                             }
                         }
                     }
 
                     //set progress bar
-                    if (map.get("range")!=null){
+                    if (map.get("range") != null) {
                         range = map.get("range").toString();
                         mProgressBar.setText("Range: " + range);
-                    }else {
+                    } else {
                         //set progress bar default
                         mProgressBar.setText("Range: " + seekBarRange.getProgress());
                     }
@@ -274,14 +297,14 @@ public class SettingsActivity extends AppCompatActivity {
         location = mCoordinates.getText().toString();
         range = mProgressBar.getText().toString();
         RadioButton selectedReligion = findViewById(mReligionRadioGroup.getCheckedRadioButtonId());
-        religion=selectedReligion.getText().toString();
+        religion = selectedReligion.getText().toString();
 
-        final Map userInfo = new HashMap();
+        final Map<String, Object> userInfo = new HashMap<String, Object>();
         userInfo.put("name", name);
         userInfo.put("phone", phone);
         userInfo.put("location", location);
         userInfo.put("range", range);
-        userInfo.put("religion",religion);
+        userInfo.put("religion", religion);
 
         //Update database
         mCustomerDatabase.updateChildren(userInfo);
@@ -323,7 +346,7 @@ public class SettingsActivity extends AppCompatActivity {
                                 public void onSuccess(Uri uri) {
                                     String imageUrl = uri.toString();
 
-                                    Map userInfo = new HashMap();
+                                    Map<String, Object> userInfo = new HashMap<>();
                                     userInfo.put("profileImageUrl", imageUrl);
                                     mCustomerDatabase.updateChildren(userInfo);
                                 }
@@ -343,8 +366,249 @@ public class SettingsActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(this, new String[]{ACCESS_FINE_LOCATION}, 1);
     }
 
+    private String encodeHMACSHA1(String data, String key) {
+        String hmac = "";
+        try {
+
+            Mac mac = Mac.getInstance("HmacSHA1");
+            SecretKeySpec secret = new SecretKeySpec(key.getBytes(), "HmacSHA1");
+            mac.init(secret);
+            byte[] digest = mac.doFinal(data.getBytes());
+
+            BigInteger hash = new BigInteger(1, digest);
+            hmac = hash.toString(16);
+
+            if (hmac.length() % 2 != 0) {
+                hmac = "0" + hmac;
+            }
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return hmac;
+    }
+
+    private Document convertStringToXMLDocument(String xmlString) {
+        //Parser that produces DOM object trees from XML content
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+
+        //API to obtain DOM Document instance
+        DocumentBuilder builder = null;
+        try {
+            //Create DocumentBuilder with default configuration
+            builder = factory.newDocumentBuilder();
+
+            //Parse the content to Document object
+            Document doc = builder.parse(new InputSource(new StringReader(xmlString)));
+            return doc;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private void makePostRequest(Uri uri) {
+        String imageUrl = uri.toString();
+        final String data = "<image_process_call>" +
+                "<image_url>" + imageUrl + "</image_url>" +
+                "<methods_list>" +
+                "<method>" +
+                "<name>collage</name>" +
+                "<params>template_name=1230</params>" +
+                "</method>" +
+                "</methods_list>" +
+                "</image_process_call>";
+
+        final String sign_data = encodeHMACSHA1(data, SECRET_API_KEY);
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+
+
+        String finalImageUrl = "";
+
+        StringRequest stringPostRequest = new StringRequest(Request.Method.POST, POST_API_URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // response
+                        System.out.println("Success");
+                        System.out.println(response);
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        System.out.println(error);
+                    }
+                }) {
+
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/x-www-form-urlencoded");
+                return headers;
+            }
+
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("app_id", APP_ID);
+                params.put("sign_data", sign_data);
+                params.put("data", data);
+                return params;
+            }
+
+
+            @Override
+            protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                String responseString = "";
+                if (response != null) {
+                    String xmlResponse = null;
+                    try {
+                        xmlResponse = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+                    Document doc = convertStringToXMLDocument(xmlResponse);
+                    String requestId = "";
+                    assert doc != null;
+                    Element rootElement = doc.getDocumentElement();
+                    NodeList nodes = rootElement.getChildNodes();
+
+                    for (int i = 0; i < nodes.getLength(); i++) {
+
+                        Node node = nodes.item(i);
+                        if (node instanceof Element && node.getNodeName().equals("request_id")) {
+                            requestId = node.getFirstChild().getNodeValue();
+                        }
+                    }
+
+                    makeGetRequest(requestId);
+
+                    responseString = String.valueOf(response.statusCode);
+                    // can get more details such as response.headers
+                }
+                return Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response));
+            }
+        };
+
+        requestQueue.add(stringPostRequest);
+
+    }
+
+    public void makeGetRequest(final String requestId) {
+        final RequestQueue getRequestQueue = Volley.newRequestQueue(getApplicationContext());
+        final StringRequest stringGetRequest = new StringRequest(Request.Method.GET, GET_API_URL + requestId, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                System.out.println("Response: " + response);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                System.out.println("hopa");
+            }
+        }) {
+            protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                String responseString = "";
+                if (response != null) {
+                    String xmlResponse = null;
+                    try {
+                        xmlResponse = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+
+                    Document doc = convertStringToXMLDocument(xmlResponse);
+                    assert doc != null;
+                    Element rootElement = doc.getDocumentElement();
+                    NodeList nodes = rootElement.getChildNodes();
+
+                    String resultUrl = null;
+
+                    for (int i = 0; i < nodes.getLength(); i++) {
+
+                        Node node = nodes.item(i);
+                        if (node instanceof Element && node.getNodeName().equals("status")) {
+                            if (node.getFirstChild().getNodeValue().equals("InProgress")) {
+                                makeGetRequest(requestId);
+                            }
+                        } else if (node instanceof Element && node.getNodeName().equals("result_url")) {
+                            resultUrl = node.getFirstChild().getNodeValue();
+                            uploadPicture(resultUrl);
+                        }
+                    }
+                    System.out.println("Result URL: " + resultUrl);
+
+                    responseString = String.valueOf(response.statusCode);
+                }
+                return Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response));
+            }
+        };
+        getRequestQueue.add(stringGetRequest);
+    }
+
+    public void uploadPicture(String imageUrl) {
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        ImageRequest imageRequest = new ImageRequest(imageUrl, new Response.Listener<Bitmap>() {
+
+            @Override
+            public void onResponse(Bitmap bitmap) {
+                System.out.println("Succes fra");
+                mProfileImage.setImageBitmap(bitmap);
+                StorageReference storageRef = storage.getReference();
+                StorageReference profilePicsRef = storageRef.child("profileImages/filteredImages/" + userId);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] byteData = baos.toByteArray();
+                UploadTask uploadTask = profilePicsRef.putBytes(byteData);
+                uploadTask.addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        System.out.println("A dat handicapatu ala cu viteza (eroare upload)");
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        if (taskSnapshot.getMetadata() != null) {
+                            if (taskSnapshot.getMetadata().getReference() != null) {
+                                final Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
+                                result.addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @SuppressLint("StaticFieldLeak")
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        Map<String, Object> userInfo = new HashMap<String, Object>();
+                                        userInfo.put("profileImageUrl", uri.toString());
+                                        mCustomerDatabase.updateChildren(userInfo);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+
+            }
+        }, 0, 0, ImageView.ScaleType.CENTER, null, new Response.ErrorListener() {
+            public void onErrorResponse(VolleyError error) {
+                System.out.println(error);
+            }
+        });
+
+// Add the request to the RequestQueue.
+        queue.add(imageRequest);
+
+
+
+
+    }
+
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(final int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
@@ -354,10 +618,10 @@ public class SettingsActivity extends AppCompatActivity {
             assert bundle != null;
             Bitmap bitmap = (Bitmap) bundle.get("data");
             assert bitmap != null;
-            mProfileImage.setImageBitmap(bitmap);
+
 
             StorageReference storageRef = storage.getReference();
-            StorageReference profilePicsRef = storageRef.child("profileImages/" + userId);
+            StorageReference profilePicsRef = storageRef.child("profileImages/rawImages/" + userId);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
 //
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
@@ -376,13 +640,14 @@ public class SettingsActivity extends AppCompatActivity {
                         if (taskSnapshot.getMetadata().getReference() != null) {
                             final Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
                             result.addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @SuppressLint("StaticFieldLeak")
                                 @Override
                                 public void onSuccess(Uri uri) {
-                                    String imageUrl = uri.toString();
 
-                                    Map userInfo = new HashMap();
-                                    userInfo.put("profileImageUrl", imageUrl);
-                                    mCustomerDatabase.updateChildren(userInfo);
+                                    // De aici functioneaza cu callbackuri pentru ca apar delay-uri de la API.
+                                    //(Daca nu ti-s clare callbackurile scrie-mi mie inainte sa schimbi ceva pls)
+                                    // Filip Rosian
+                                    makePostRequest(uri);
                                 }
                             });
                         }
