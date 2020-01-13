@@ -5,12 +5,15 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
@@ -51,10 +54,15 @@ import com.google.firebase.storage.UploadTask;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -379,6 +387,34 @@ public class SettingsActivity extends AppCompatActivity {
         return hmac;
     }
 
+    private String makePostRequest(String stringUrl, String body,
+                                   Context context) throws IOException {
+        URL url = new URL(stringUrl);
+        HttpURLConnection uc = (HttpURLConnection) url.openConnection();
+        String line;
+        StringBuffer jsonString = new StringBuffer();
+
+        uc.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        uc.setRequestMethod("POST");
+        uc.setDoInput(true);
+        uc.setInstanceFollowRedirects(false);
+        uc.connect();
+        OutputStreamWriter writer = new OutputStreamWriter(uc.getOutputStream(), "UTF-8");
+        writer.write(body);
+        writer.close();
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(uc.getInputStream()));
+            while ((line = br.readLine()) != null) {
+                jsonString.append(line);
+            }
+            br.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        uc.disconnect();
+        return jsonString.toString();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -412,21 +448,21 @@ public class SettingsActivity extends AppCompatActivity {
                         if (taskSnapshot.getMetadata().getReference() != null) {
                             final Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
                             result.addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @SuppressLint("StaticFieldLeak")
                                 @Override
                                 public void onSuccess(Uri uri) {
                                     String imageUrl = uri.toString();
-                                    String data = "<image_process_call>\n" +
-                                            "  <image_url>" + imageUrl + "</image_url>\n" +
-                                            "  <methods_list>\n" +
-                                            "    <method>\n" +
-                                            "      <name>collage</name>\n" +
-                                            "<params>template_name=1230</params>\n" +
-                                            "    </method>\n" +
-                                            "  </methods_list>\n" +
+                                    final String data = "<image_process_call>" +
+                                            "<image_url>" + imageUrl + "</image_url>" +
+                                            "<methods_list>" +
+                                            "<method>" +
+                                            "<name>collage</name>" +
+                                            "<params>template_name=1230</params>" +
+                                            "</method>" +
+                                            "</methods_list>" +
                                             "</image_process_call>";
 
-                                    String sign_data = encodeHMACSHA1(data, SECRET_API_KEY);
-
+                                    final String sign_data = encodeHMACSHA1(data, SECRET_API_KEY);
 
                                     JSONObject jsonBody = new JSONObject();
                                     try {
@@ -457,31 +493,45 @@ public class SettingsActivity extends AppCompatActivity {
                                                     System.out.println(error);
                                                 }
                                             }) {
+
+
                                         @Override
-                                        public String getBodyContentType() {
-                                            return "application/json; charset=utf-8";
+                                        public Map<String, String> getHeaders() throws AuthFailureError {
+                                            Map<String, String> headers = new HashMap<>();
+                                            headers.put("Content-Type","application/x-www-form-urlencoded");
+                                            return headers;
                                         }
 
                                         @Override
-                                        public byte[] getBody(){
-                                            try {
-                                                return requestBody.getBytes("utf-8");
-                                            } catch (UnsupportedEncodingException uee) {
-                                                System.out.println("Unsupported Encoding while trying to get the bytes of %s using %s " + requestBody + " utf-8");
-                                                return null;
-                                            }
+                                        protected Map<String, String> getParams() {
+                                            Map<String, String> params = new HashMap<>();
+                                            params.put("app_id", APP_ID);
+                                            params.put("sign_data", sign_data);
+                                            params.put("data", data);
+                                            return params;
                                         }
+                                        
 
                                         @Override
                                         protected Response<String> parseNetworkResponse(NetworkResponse response) {
                                             String responseString = "";
                                             if (response != null) {
+                                                String json = null;
+                                                try {
+                                                    json = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
+                                                } catch (UnsupportedEncodingException e) {
+                                                    e.printStackTrace();
+                                                }
+                                                System.out.println("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEY");
+                                                System.out.println(json);
                                                 responseString = String.valueOf(response.statusCode);
                                                 // can get more details such as response.headers
                                             }
                                             return Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response));
                                         }
                                     };
+                                    System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+                                    System.out.println(stringRequest.toString());
                                     requestQueue.add(stringRequest);
 
                                     Map userInfo = new HashMap();
