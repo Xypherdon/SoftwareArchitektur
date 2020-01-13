@@ -409,12 +409,27 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void makePostRequest(Uri uri) {
         String imageUrl = uri.toString();
+
+        String template_name="";
+
+        switch(religion){
+            case "Christian":
+                template_name="1230";
+                break;
+            case "Muslim":
+                template_name="1152";
+                break;
+            case"Hindu":
+                template_name="1171";
+                break;
+        }
+
         final String data = "<image_process_call>" +
                 "<image_url>" + imageUrl + "</image_url>" +
                 "<methods_list>" +
                 "<method>" +
                 "<name>collage</name>" +
-                "<params>template_name=1230</params>" +
+                "<params>template_name="+template_name+"</params>" +
                 "</method>" +
                 "</methods_list>" +
                 "</image_process_call>";
@@ -422,9 +437,6 @@ public class SettingsActivity extends AppCompatActivity {
         final String sign_data = encodeHMACSHA1(data, SECRET_API_KEY);
 
         RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-
-
-        String finalImageUrl = "";
 
         StringRequest stringPostRequest = new StringRequest(Request.Method.POST, POST_API_URL,
                 new Response.Listener<String>() {
