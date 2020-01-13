@@ -93,9 +93,10 @@ public class RegistrationActivity extends AppCompatActivity {
                         } else {
                             String userId = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
                             String gender = genderRadioButton.getText().toString();
-                            DatabaseReference currentUserDb = FirebaseDatabase.getInstance().getReference().child("users").child(gender).child(userId).child("name");
-                            currentUserDb.setValue(name);
-                            currentUserDb.setValue(religion);
+                            DatabaseReference currentNameOfUserDB = FirebaseDatabase.getInstance().getReference().child("users").child(gender).child(userId).child("name");
+                            currentNameOfUserDB.setValue(name);
+                            DatabaseReference currentReligionOfUserDB = FirebaseDatabase.getInstance().getReference().child("users").child(gender).child(userId).child("religion");
+                            currentReligionOfUserDB.setValue(religion);
                         }
                     }
                 });
