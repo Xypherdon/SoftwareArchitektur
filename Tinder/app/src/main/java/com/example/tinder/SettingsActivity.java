@@ -464,18 +464,6 @@ public class SettingsActivity extends AppCompatActivity {
 
                                     final String sign_data = encodeHMACSHA1(data, SECRET_API_KEY);
 
-                                    JSONObject jsonBody = new JSONObject();
-                                    try {
-                                        jsonBody.put("app_id", APP_ID);
-                                        jsonBody.put("sign_data", sign_data);
-                                        jsonBody.put("data", data);
-
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-
-                                    final String requestBody = jsonBody.toString();
-
                                     RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
 
                                     StringRequest stringRequest = new StringRequest(Request.Method.POST, API_URL,
@@ -485,6 +473,7 @@ public class SettingsActivity extends AppCompatActivity {
                                                     // response
                                                     System.out.println("Success");
                                                     System.out.println(response);
+
                                                 }
                                             },
                                             new Response.ErrorListener() {
@@ -510,26 +499,26 @@ public class SettingsActivity extends AppCompatActivity {
                                             params.put("data", data);
                                             return params;
                                         }
-                                        
+
 
                                         @Override
                                         protected Response<String> parseNetworkResponse(NetworkResponse response) {
                                             String responseString = "";
                                             if (response != null) {
-                                                String json = null;
+                                                String xmlResponse = null;
                                                 try {
-                                                    json = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
+                                                    xmlResponse = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
                                                 } catch (UnsupportedEncodingException e) {
                                                     e.printStackTrace();
                                                 }
-                                                System.out.println("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEY");
-                                                System.out.println(json);
+                                                System.out.println(xmlResponse);
                                                 responseString = String.valueOf(response.statusCode);
                                                 // can get more details such as response.headers
                                             }
                                             return Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response));
                                         }
                                     };
+
                                     System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
                                     System.out.println(stringRequest.toString());
                                     requestQueue.add(stringRequest);
