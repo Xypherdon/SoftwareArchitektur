@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.tinder.Matches.MatchesActivity;
 import com.example.tinder.models.UserLocation;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -33,8 +34,8 @@ public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
 
-    private String userSex;
-    private String oppositeUserSex;
+    public static String userSex;
+    public static String oppositeUserSex;
     private String currentUid;
 
     private DatabaseReference usersDb;
@@ -124,8 +125,12 @@ public class MainActivity extends AppCompatActivity {
                 if (dataSnapshot.exists()){
                     //connection found notfication
                     Toast.makeText(MainActivity.this, "new Connection", Toast.LENGTH_LONG).show();
-                    usersDb.child(oppositeUserSex).child(dataSnapshot.getKey()).child("connections").child("matches").child(currentUid).setValue(true);
-                    usersDb.child(userSex).child(currentUid).child("connections").child("matches").child(dataSnapshot.getKey()).setValue(true);
+
+                    String key = FirebaseDatabase.getInstance().getReference().child("Chat").push().getKey();
+
+                    usersDb.child(oppositeUserSex).child(dataSnapshot.getKey()).child("connections").child("matches").child(currentUid).child("chatId").setValue(key);
+
+                    usersDb.child(userSex).child(currentUid).child("connections").child("matches").child(dataSnapshot.getKey()).child("chatId").setValue(key);
                 }
             }
 
@@ -269,6 +274,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void openLocationActivity(View view) {
         Intent intent = new Intent(MainActivity.this, CurrentLocationActivity.class);
+        startActivity(intent);
+        return;
+    }
+
+    public void goToMatches(View view) {
+        Intent intent = new Intent(MainActivity.this, MatchesActivity.class);
+        intent.putExtra("userSex",userSex);
         startActivity(intent);
         return;
     }
