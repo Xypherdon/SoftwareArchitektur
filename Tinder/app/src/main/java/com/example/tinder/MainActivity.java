@@ -34,8 +34,8 @@ public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
 
-    private String userSex;
-    private String oppositeUserSex;
+    public static String userSex;
+    public static String oppositeUserSex;
     private String currentUid;
 
     private DatabaseReference usersDb;
