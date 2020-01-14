@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.tinder.Matches.MatchesActivity;
 import com.example.tinder.models.UserLocation;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -269,6 +270,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void openLocationActivity(View view) {
         Intent intent = new Intent(MainActivity.this, CurrentLocationActivity.class);
+        startActivity(intent);
+        return;
+    }
+
+    public void goToMatches(View view) {
+        Intent intent = new Intent(MainActivity.this, MatchesActivity.class);
+        intent.putExtra("userSex",userSex);
         startActivity(intent);
         return;
     }

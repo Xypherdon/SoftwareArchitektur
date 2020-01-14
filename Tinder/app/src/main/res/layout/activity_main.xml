@@ -10,7 +10,7 @@
         android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
+        android:layout_marginStart="28dp"
         android:onClick="logoutUser"
         android:text="Logout"
         app:layout_constraintBaseline_toBaselineOf="@+id/button2"
@@ -20,7 +20,6 @@
         android:id="@+id/button2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
         android:onClick="goToSettings"
         android:text="Settings"
         app:layout_constraintBaseline_toBaselineOf="@+id/button3"
@@ -30,7 +29,6 @@
         android:id="@+id/button3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
         android:layout_marginTop="20dp"
         android:onClick="openLocationActivity"
         android:text="Location"
@@ -44,9 +42,21 @@
         android:background="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
         app:rotation_degrees="15.5"
         tools:context=".MyActivity" />
+
+    <Button
+        android:id="@+id/matchesMenuButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Matches"
+        android:onClick="goToMatches"
+        app:layout_constraintStart_toEndOf="@+id/button3"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
