@@ -30,13 +30,14 @@
             android:layout_weight="0.8"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="Type message"/>
+            android:hint="Type message"
+            android:id="@+id/message"/>
         <Button
             android:layout_weight="0.2"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Send"
-            android:id="@+id/sendButton"/>
+            android:id="@+id/send"/>
     </LinearLayout>
 
 </RelativeLayout>
