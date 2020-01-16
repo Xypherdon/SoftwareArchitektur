@@ -1,90 +1,121 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".RegistrationActivity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@drawable/gradient_background"
+    tools:context=".RegistrationActivity">
 
-    <EditText
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="name"
-        android:id="@+id/name"/>
+        android:orientation="vertical"
+        android:layout_centerInParent="true">
 
-    <RadioGroup
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/genderRadioGroup">
-
-        <RadioButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Male"
-            />
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Female"
-            />
-
-        <RadioButton
-            android:id="@+id/otherSexRadioButton"
+        <EditText
+            android:id="@+id/name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:checked="false"
-            android:clickable="false"
-            android:text="Other" />
-    </RadioGroup>
+            android:textColor="@color/buttonTextColor"
+            android:textColorHint="@color/buttonTextColor"
+            android:backgroundTint="@color/buttonTextColor"
+            android:hint="name" />
 
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="email"
-        android:id="@+id/email"/>
+        <RadioGroup
+            android:id="@+id/genderRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="password"
-        android:id="@+id/password"
-        />
+            <RadioButton
+                android:textColor="@color/buttonTextColor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/buttonTextColor"
+                android:text="Male" />
 
-    <TextView
-        android:id="@+id/religionTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Choose your religion:" />
+            <RadioButton
+                android:textColor="@color/buttonTextColor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/buttonTextColor"
+                android:text="Female" />
 
-    <RadioGroup
-        android:id="@+id/religionRadioGroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+            <RadioButton
+                android:textColor="@color/buttonTextColor"
+                android:id="@+id/otherSexRadioButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/buttonTextColor"
+                android:checked="false"
+                android:clickable="false"
+                android:text="Other" />
+        </RadioGroup>
 
-        <RadioButton
-            android:id="@+id/pokaitRadioButton"
+        <EditText
+            android:id="@+id/email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Christian" />
+            android:textColor="@color/buttonTextColor"
+            android:textColorHint="@color/buttonTextColor"
+            android:backgroundTint="@color/buttonTextColor"
+            android:hint="email" />
 
-        <RadioButton
-            android:id="@+id/bombardierRadioButton"
+        <EditText
+            android:id="@+id/password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Muslim" />
+            android:textColor="@color/buttonTextColor"
+            android:textColorHint="@color/buttonTextColor"
+            android:backgroundTint="@color/buttonTextColor"
+            android:hint="password" />
 
-        <RadioButton
-            android:id="@+id/dalaiRadioButton"
+        <TextView
+            android:id="@+id/religionTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Hindu" />
-    </RadioGroup>
+            android:textColor="@color/buttonTextColor"
+            android:text="Choose your religion:" />
 
-    <Button
-        android:id="@+id/register"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="register" />
-</LinearLayout>
+        <RadioGroup
+            android:id="@+id/religionRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:textColor="@color/buttonTextColor"
+                android:id="@+id/pokaitRadioButton"
+                android:buttonTint="@color/buttonTextColor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Christian" />
+
+            <RadioButton
+                android:textColor="@color/buttonTextColor"
+                android:id="@+id/bombardierRadioButton"
+                android:buttonTint="@color/buttonTextColor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Muslim" />
+
+            <RadioButton
+                android:textColor="@color/buttonTextColor"
+                android:id="@+id/dalaiRadioButton"
+                android:layout_width="match_parent"
+                android:buttonTint="@color/buttonTextColor"
+                android:layout_height="wrap_content"
+                android:text="Hindu" />
+        </RadioGroup>
+
+        <Button
+            android:id="@+id/register"
+            android:layout_width="150dp"
+            android:layout_gravity="center"
+            android:textSize="20dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/my_button"
+            android:textColor="@color/buttonTextColor"
+            android:text="register" />
+    </LinearLayout>
+</RelativeLayout>

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/gradient_background"
     tools:context=".MainActivity">
 
     <Button
@@ -13,6 +14,8 @@
         android:layout_marginStart="28dp"
         android:onClick="logoutUser"
         android:text="Logout"
+        android:background="@drawable/my_button"
+        android:textColor="@color/buttonTextColor"
         app:layout_constraintBaseline_toBaselineOf="@+id/button2"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -22,6 +25,8 @@
         android:layout_height="wrap_content"
         android:onClick="goToSettings"
         android:text="Settings"
+        android:background="@drawable/my_button"
+        android:textColor="@color/buttonTextColor"
         app:layout_constraintBaseline_toBaselineOf="@+id/button3"
         app:layout_constraintStart_toEndOf="@+id/button" />
 
@@ -32,6 +37,8 @@
         android:layout_marginTop="20dp"
         android:onClick="openLocationActivity"
         android:text="Location"
+        android:background="@drawable/my_button"
+        android:textColor="@color/buttonTextColor"
         app:layout_constraintStart_toEndOf="@+id/button2"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -39,7 +46,7 @@
         android:id="@+id/frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/white"
+        android:background="@mipmap/no_cards_placehorder"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -55,6 +62,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:text="Matches"
+        android:background="@drawable/my_button"
+        android:textColor="@color/buttonTextColor"
         android:onClick="goToMatches"
         app:layout_constraintStart_toEndOf="@+id/button3"
         app:layout_constraintTop_toTopOf="parent" />

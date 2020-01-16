@@ -30,7 +30,7 @@ public class ArrayAdapter extends android.widget.ArrayAdapter<Cards> {
         ImageView image = (ImageView) convertView.findViewById(R.id.image);
 
         name.setText(cardItem.getName());
-        //image.setImageResource(R.mipmap.ic_launcher);
+        //no_cards_placehorder.setImageResource(R.mipmap.ic_launcher);
         if (cardItem.getProfileImageUrl()==null){
             image.setImageResource(R.mipmap.ic_launcher);
         }else {

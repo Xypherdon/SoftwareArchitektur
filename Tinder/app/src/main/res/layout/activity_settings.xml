@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".SettingsActivity"
     android:orientation="vertical"
+    android:background="@drawable/gradient_background"
     android:padding="20sp">
 
     <ImageView
@@ -20,6 +21,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/name"
+        android:textColor="@color/buttonTextColor"
+        android:textColorHint="@color/buttonTextColor"
         android:background="@null"
         android:hint="Name"
         android:layout_marginBottom="20sp"/>
@@ -28,6 +31,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/phone"
+        android:textColor="@color/buttonTextColor"
+        android:textColorHint="@color/buttonTextColor"
         android:background="@null"
         android:hint="Phone"
         android:layout_marginBottom="20sp"
@@ -39,18 +44,24 @@
         android:layout_height="113dp">
 
         <RadioButton
+            android:textColor="@color/buttonTextColor"
+            android:buttonTint="@color/buttonTextColor"
             android:id="@+id/pokaitRadioButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Christian" />
 
         <RadioButton
+            android:textColor="@color/buttonTextColor"
+            android:buttonTint="@color/buttonTextColor"
             android:id="@+id/bombardierRadioButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Muslim" />
 
         <RadioButton
+            android:textColor="@color/buttonTextColor"
+            android:buttonTint="@color/buttonTextColor"
             android:id="@+id/streetshitterRadioButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -62,6 +73,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20sp"
+        android:textColorHint="@color/buttonTextColor"
         android:hint="Coords"/>
 
     <TextView
@@ -69,6 +81,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20sp"
+        android:textColorHint="@color/buttonTextColor"
+        android:textColor="@color/buttonTextColor"
         android:hint=""/>
 
     <SeekBar
@@ -83,18 +97,24 @@
         android:id="@+id/getCurrentLocation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/my_button"
+        android:textColor="@color/buttonTextColor"
         android:text="Location" />
 
     <Button
         android:id="@+id/confirmSettings"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/my_button"
+        android:textColor="@color/buttonTextColor"
         android:text="Confirm" />
 
     <Button
         android:id="@+id/back"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/my_button"
+        android:textColor="@color/buttonTextColor"
         android:text="Back" />
 
 </LinearLayout>
