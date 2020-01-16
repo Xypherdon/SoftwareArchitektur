@@ -124,7 +124,7 @@ public class SettingsActivity extends AppCompatActivity {
         mProgressBar = (TextView) findViewById(R.id.progressBar);
 
 
-        //profile image
+        //profile no_cards_placehorder
         mProfileImage = (ImageView) findViewById(R.id.profileImage);
 
         //Buttons
@@ -321,7 +321,7 @@ public class SettingsActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            //compress the image
+            //compress the no_cards_placehorder
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 20, byteArrayOutputStream);
             byte[] data = byteArrayOutputStream.toByteArray();
@@ -625,7 +625,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
             assert data != null;
-            //image location on the phone
+            //no_cards_placehorder location on the phone
             Bundle bundle = data.getExtras();
             assert bundle != null;
             Bitmap bitmap = (Bitmap) bundle.get("data");
