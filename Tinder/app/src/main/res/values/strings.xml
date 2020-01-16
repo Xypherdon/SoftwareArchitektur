@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Tinder</string>
+    <string name="app_name">Munlai</string>
     <string name="map_key" translatable="false">AIzaSyDF579ubWkXZOTRkI40_aOtWNOLde3kxbg</string>
     <string name="title_activity_matches">MatchesActivity</string>
 </resources>
